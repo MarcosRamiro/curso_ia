@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class VetorOrdenado:
     def __init__(self, capacidade):
         self.capacidade = capacidade
@@ -134,34 +135,16 @@ class Gulosa:
         else:
             vetor_ordenado = VetorOrdenado(len(atual.adjacentes))
             for adjacente in atual.adjacentes:
-                if adjacente.vertice.visitado == False:
+                if not adjacente.vertice.visitado:
                     adjacente.vertice.visitado = True
                     vetor_ordenado.insere(adjacente.vertice)
             vetor_ordenado.imprime()
-            if vetor_ordenado.valores[0] != None:
+            if vetor_ordenado.valores[0] is not None:
                 self.buscar(vetor_ordenado.valores[0])
-
-
-
 
 
 if __name__ == '__main__':
     grafo = Grafo()
-    #grafo.arad.mostra_adjacentes()
-    #grafo.bucharest.mostra_adjacentes()
-
-    # vetor = VetorOrdenado(5)
-    # vetor.insere(grafo.arad)
-    # vetor.insere(grafo.craiova)
-    # vetor.insere(grafo.bucharest)
-    # vetor.insere(grafo.dobreta)
-    # vetor.imprime()
-    # vetor.insere(grafo.lugoj)
-    # vetor.imprime()
-    # print(vetor.valores[0])
-
     busca_gulosa = Gulosa(grafo.bucharest)
     busca_gulosa.buscar(grafo.arad)
-
-
 
