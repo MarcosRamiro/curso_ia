@@ -12,9 +12,12 @@ class VetorOrdenado:
             print('Vetor Vazio!')
         else:
             for i in range(self.ultima_posicao + 1):
-                print(i, ' - ', self.valores[i].rotulo, ' - ', self.valores[i].distancia_objetivo)
+                print(i, ' - ', self.valores[i].vertice.rotulo, ' - ',
+                      self.valores[i].custo, ' - ',
+                      self.valores[i].vertice.distancia_objetivo, ' - ',
+                      self.valores[i].distancia_aestrela)
 
-    def insere(self, vertice):
+    def insere(self, adjacente):
         if self.ultima_posicao == self.capacidade - 1:
             print('Capacidade Maxima atingida!')
             return
@@ -22,7 +25,7 @@ class VetorOrdenado:
         posicao = 0
         for i in range(self.ultima_posicao + 1):
             posicao = i
-            if self.valores[i].distancia_objetivo > vertice.distancia_objetivo:
+            if self.valores[i].distancia_aestrela > adjacente.distancia_aestrela:
                 break
             if i == self.ultima_posicao:
                 posicao = i + 1
@@ -30,7 +33,7 @@ class VetorOrdenado:
         while aux >= posicao:
             self.valores[aux + 1] = self.valores[aux]
             aux -= 1
-        self.valores[posicao] = vertice
+        self.valores[posicao] = adjacente
         self.ultima_posicao += 1
 
 
@@ -56,13 +59,14 @@ class Adjacente:
     def __init__(self, vertice, custo):
         self.vertice = vertice
         self.custo = custo
+        self.distancia_aestrela = vertice.distancia_objetivo + custo
 
 
 class Grafo:
     arad = Vertice('Arad', 366)
     zerind = Vertice('Zerind', 374)
     oradea = Vertice('Oradea', 380)
-    sibiu = Vertice('Sibiu', 25)
+    sibiu = Vertice('Sibiu', 253)
     timisoara = Vertice('Timisoara', 329)
     lugoj = Vertice('Lugoj', 244)
     mehadia = Vertice('Mehadia', 241)
@@ -125,10 +129,12 @@ class Gulosa:
     def __init__(self, objetivo):
         self.objetivo = objetivo
         self.encontrado = False
+        self.caminho_completo = []
 
-    def buscar(self, atual):
+    def buscar(self, atual) -> [str]:
         print('---------')
         print(f'Atual: {atual.rotulo}')
+        self.caminho_completo.append(atual.rotulo)
         atual.visitado = True
         if atual == self.objetivo:
             self.encontrado = True
@@ -140,11 +146,41 @@ class Gulosa:
                     vetor_ordenado.insere(adjacente.vertice)
             vetor_ordenado.imprime()
             if vetor_ordenado.valores[0] is not None:
-                self.buscar(vetor_ordenado.valores[0])
+                return self.buscar(vetor_ordenado.valores[0])
+        return self.caminho_completo
+
+
+class AEstrela:
+    def __init__(self, objetivo):
+        self.objetivo = objetivo
+        self.encontrado = False
+        self.caminho = []
+
+    def buscar(self, atual):
+        print('-----------')
+        print(f'Atual: {atual.rotulo}')
+        atual.visitado = True
+        self.caminho.append(atual.rotulo)
+
+        if atual == self.objetivo:
+            self.encontrado = True
+            return self.caminho
+        else:
+            vetor_ordenado = VetorOrdenado(len(atual.adjacentes))
+            for adjacente in atual.adjacentes:
+                if adjacente.vertice.visitado is False:
+                    adjacente.vertice.visitado = True
+                    vetor_ordenado.insere(adjacente)
+            vetor_ordenado.imprime()
+            if vetor_ordenado.valores[0] is not None:
+                return self.buscar(vetor_ordenado.valores[0].vertice)
 
 
 if __name__ == '__main__':
     grafo = Grafo()
-    busca_gulosa = Gulosa(grafo.bucharest)
-    busca_gulosa.buscar(grafo.arad)
+    # busca_gulosa = Gulosa(grafo.bucharest)
+    # print(busca_gulosa.buscar(grafo.arad))
+
+    busca_aestrela = AEstrela(grafo.bucharest)
+    print(busca_aestrela.buscar(grafo.arad))
 
